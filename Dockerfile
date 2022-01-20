@@ -11,11 +11,12 @@ RUN ln -s /etc/nginx/sites-available/medallion.conf /etc/nginx/sites-enabled/med
 RUN python -m pip install --upgrade pip
 RUN pip install setuptools 
 
-RUN mkdir -p /opt/taxii/data
-RUN mkdir -p /opt/taxii/conf.d
-COPY ./conf/medallion.conf /opt/taxii/conf.d/medallion.conf
-COPY ./data/default_data.json /opt/taxii/data/default_data.json
+VOLUME [ "/data" ] 
+VOLUME [ "/conf" ] 
+COPY ./conf/medallion.conf /conf/medallion.conf
+COPY ./data/default_data.json /data/default_data.json
 
+RUN mkdir -p /opt/taxii
 RUN git clone https://github.com/oasis-open/cti-taxii-server.git /opt/taxii/src
 
 WORKDIR /opt/taxii/src

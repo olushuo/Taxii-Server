@@ -1,3 +1,3 @@
 
-medallion /opt/taxii/conf.d/medallion.conf  &
+medallion /conf/medallion.conf  &
 service nginx start
