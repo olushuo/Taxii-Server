@@ -3,6 +3,7 @@
   - [Usage](#usage)
     - [configuration](#configuration)
     - [Fake testing data](#fake-testing-data)
+  - [- Please use "default_data.json" as the fake data file's name, otherwise please change the configuration file either.</br>](#--please-use-default_datajson-as-the-fake-data-files-name-otherwise-please-change-the-configuration-file-eitherbr)
 # cti-taxii-server 1.0 #
 
 ## Description ##
@@ -44,7 +45,7 @@ docker container run -d -p 8080:8080 -p 80:80  -v <your config file folder>:/con
 
 ### Fake testing data ###
 ```bash
-docker container run -d -p 8080:8080 -p 80:80  -v <your data file folder>:/conf olushuo/cti-taxii-server:1.0
+docker container run -d -p 8080:8080 -p 80:80  -v <your data file folder>:/data olushuo/cti-taxii-server:1.0
 ```
 - Please modify the `/discovery` part, configure the proper IP here.
 - Please use "default_data.json" as the fake data file's name, otherwise please change the configuration file either.</br>
