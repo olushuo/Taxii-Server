@@ -13,7 +13,7 @@ Based on python 3.9 and medallion 3.0.0
 docker container run -d -p 8080:8080 -p 80:80 olushuo/cti-taxii-server:1.0
 ```
 - Taxii server is listening on port 8080.
-- Use port 80 to check if the Nginx is sunning.
+- Use port 80 to check if the Nginx is running.
 
 ### configuration ###
 ```bash
