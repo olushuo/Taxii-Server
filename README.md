@@ -47,33 +47,8 @@ docker container run -d -p 8080:8080 -p 80:80  -v <your config file folder>:/con
 docker container run -d -p 8080:8080 -p 80:80  -v <your data file folder>:/conf olushuo/cti-taxii-server:1.0
 ```
 - Please modify the `/discovery` part, configure the proper IP here.
-- Please use "default_data.json" as the fake data file's name, otherwise please change the configuration file either.
-***A sample data file is as below***
-```json
-{
-    "/discovery": {
-        "title": "Some TAXII Server",
-        "description": "This TAXII Server contains a listing of",
-        "contact": "string containing contact information",
-        "default": "http://192.168.56.105:8080/trustgroup1/",
-        "api_roots": [
-            "http://192.168.56.105:8080/api1/",
-            "http://192.168.56.105:8080/api2/",
-            "http://192.168.56.105:8080/trustgroup1/"
-        ]
-    },
-    "api1": {
-        "information": {
-            "title": "General STIX 2.1 Collections",
-            "description": "A repo for general STIX data.",
-            "versions": [
-                "application/taxii+json;version=2.1"
-            ],
-            "max_content_length": 9765625
-        },
-        "status": [],
-        "collections": []
-    },
-    "api2": {
-        "inforver based on *[cti-taxii-server](https://github.com/oasis-open/cti-taxii-server)*. For testing FDC STIX feature.
+- Please use "default_data.json" as the fake data file's name, otherwise please change the configuration file either.</br>
+---
+***A sample data file --->***
+*[defalut_data.json](https://github.com/olushuo/Taxxii-Server/blob/main/data/default_data.json)*
 
