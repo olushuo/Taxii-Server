@@ -23,6 +23,8 @@ RUN git clone https://github.com/oasis-open/cti-taxii-server.git src
 WORKDIR /opt/taxii/src
 COPY ./launch_all.sh /launch_all.sh
 
+EXPOSE 80
+EXPOSE 8080
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
 RUN chmod a+x /launch_all.sh
 CMD [ "bash", "-c", "/launch_all.sh" ]
