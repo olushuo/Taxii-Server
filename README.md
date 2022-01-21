@@ -54,7 +54,7 @@ docker container run -d -p 8080:8080 -p 80:80  -v <your config file folder>:/con
 docker container run -d -p 8080:8080 -p 80:80  -v <your data file folder>:/data olushuo/cti-taxii-server:1.0
 ```
 - Please modify the `/discovery` part, configure the proper IP here.
-- Please use "default_data.json" as the fake data file's name, otherwise please change the configuration file either.
+- Please keep "default_data.json" as the fake data file's name, otherwise please change the configuration file either.
 ![image](https://user-images.githubusercontent.com/13208409/150575431-ea753a35-1e5d-458e-a025-599cab214db9.png)
 
 
