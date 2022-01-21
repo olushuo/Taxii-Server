@@ -63,6 +63,9 @@ docker container run -d -p 8080:8080 -p 80:80  -v <your data file folder>:/data 
 ```bash
 conda create -n taxii-test python=2.7
 conda activate taxii-test
+pip install --upgrade pip
+pip install taxii2-client
+pip install stix2
 ```
 ***A sample test file --->***
 *[test.py](https://github.com/olushuo/Taxxii-Server/blob/main/test.py)*
