@@ -9,10 +9,10 @@
 # cti-taxii-server 1.0 #
 
 ## Description ##
-Based on python 3.9 and medallion 3.0.0</br>
-For testing the FDC's STIX feature.
-Supporting [STIX2.1](https://docs.oasis-open.org/cti/stix/v2.1/csprd01/stix-v2.1-csprd01.html)
-To test, please follow [TAXII2.1](https://docs.oasis-open.org/cti/taxii/v2.1/csprd02/taxii-v2.1-csprd02.html)
+- Based on python 3.9 and medallion 3.0.0
+- For testing the FDC's STIX feature.
+- Supporting [STIX2.1](https://docs.oasis-open.org/cti/stix/v2.1/csprd01/stix-v2.1-csprd01.html)
+- To test, please follow [TAXII2.1](https://docs.oasis-open.org/cti/taxii/v2.1/csprd02/taxii-v2.1-csprd02.html)
 
 ## Usage ##
 ```bash
