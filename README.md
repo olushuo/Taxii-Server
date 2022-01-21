@@ -9,7 +9,8 @@
 # cti-taxii-server 1.0 #
 
 ## Description ##
-Based on python 3.9 and medallion 3.0.0
+Based on python 3.9 and medallion 3.0.0</br>
+For testing the FDC's STIX feature.
 
 ## Usage ##
 ```bash
