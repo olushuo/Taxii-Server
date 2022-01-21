@@ -4,6 +4,8 @@
     - [configuration](#configuration)
     - [Fake testing data](#fake-testing-data)
   - [- Please use "default_data.json" as the fake data file's name, otherwise please change the configuration file either.</br>](#--please-use-default_datajson-as-the-fake-data-files-name-otherwise-please-change-the-configuration-file-eitherbr)
+  - [Test](#test)
+    - [Based on python 2.7](#based-on-python-27)
 # cti-taxii-server 1.0 #
 
 ## Description ##
@@ -52,4 +54,11 @@ docker container run -d -p 8080:8080 -p 80:80  -v <your data file folder>:/data 
 ---
 ***A sample data file --->***
 *[defalut_data.json](https://github.com/olushuo/Taxxii-Server/blob/main/data/default_data.json)*
+
+## Test ##
+### Based on python 2.7 ###
+```bash
+conda create -n taxii-test python=2.7
+conda activate taxii-test
+```
 
