@@ -16,11 +16,11 @@
 ## Usage ##
 If you are running it in VritualBox and the VM's ip is `192.168.56.105`, you can directly run this following command
 ```bash
-docker container run -d -p 8080:8080 -p 80:81 olushuo/cti-taxii-server:1.0
+docker container run -d -p 8080:8080 -p 81:80 olushuo/cti-taxii-server:1.0
 ```
 Otherwise, you mostly may need to run
 ```
-docker container run -d -p 8080:8080 -p 80:81  -v <your data file folder>:/data olushuo/cti-taxii-server:1.0
+docker container run -d -p 8080:8080 -p 81:80  -v <your data file folder>:/data olushuo/cti-taxii-server:1.0
 ```
 - Taxii server is listening on port 8080.
 - Use port 81 to check if the Nginx is running.
@@ -29,7 +29,7 @@ docker container run -d -p 8080:8080 -p 80:81  -v <your data file folder>:/data 
 
 ### configuration ###
 ```bash
-docker container run -d -p 8080:8080 -p 80:81  -v <your config file folder>:/conf olushuo/cti-taxii-server:1.0
+docker container run -d -p 8080:8080 -p 81:80  -v <your config file folder>:/conf olushuo/cti-taxii-server:1.0
 ```
 ***A sample configuration file is as below***
 ```json
@@ -58,7 +58,7 @@ docker container run -d -p 8080:8080 -p 80:81  -v <your config file folder>:/con
 ***A sample data file --->***
 *[defalut_data.json](https://github.com/olushuo/Taxxii-Server/blob/main/data/default_data.json)*
 ```bash
-docker container run -d -p 8080:8080 -p 80:81  -v <your data file folder>:/data olushuo/cti-taxii-server:1.0
+docker container run -d -p 8080:8080 -p 81:80  -v <your data file folder>:/data olushuo/cti-taxii-server:1.0
 ```
 - Please modify the `/discovery` part, configure the proper IP here.
 - Please keep "default_data.json" as the fake data file's name, otherwise please change the configuration file either.
