@@ -183,31 +183,120 @@ def _test_add_bundle_2(SERVER, PORT, USER, PASSWORD, collection_id, api_root_url
     taxii2 = Taxxi2Server(SERVER, PORT, USER, PASSWORD)
     api_root = taxii2.get_api_root(api_root_url)
     collection = api_root.get_collection(collection_id)
-    indicator = parse("""{
-        "type": "indicator",
+    # indicator = parse("""{
+    #     "created": "2021-11-30T22:09:36Z",
+    #     "id": "indicator--8b680539-bc5d-4dc8-b91d-64e8295b8740",
+    #     "indicator_types": [
+    #         "malicious-activity"
+    #     ],
+    #     "modified": "2021-11-30T22:14:17Z",
+    #     "name": "Incident 2376151082326160871",
+    #     "pattern": "[file:hashes.MD5 = '69630e4574ec6798239b091cda43dca0'] AND [file:hashes.MD5 = 'd183cc8fe6027f3895dc15029af8f3bd']",
+    #     "pattern_type": "stix",
+    #     "spec_version": "2.1",
+    #     "type": "indicator",
+    #     "valid_from": "2021-11-30T22:14:17Z"
+    # }""")
+
+    # print('[Debug]: print indicator')
+    # print(indicator.serialize(pretty=True))
+    indicator_info = {}
+    indicator_info['name'] = "Incident 2376151082326160871"
+    indicator_info['created'] = "2021-11-30T22:09:36Z"
+    indicator_info['id'] = "indicator--8b680539-bc5d-4dc8-b91d-64e8295b8740"
+    indicator_info['indicator_types'] = [ "malicious-activity" ]
+    indicator_info['modified'] = "2021-11-30T22:14:17Z"
+    indicator_info['pattern'] = "[file:hashes.MD5 = '69630e4574ec6798239b091cda43dca0'] AND [file:hashes.MD5 = 'd183cc8fe6027f3895dc15029af8f3bd']"
+    indicator_info['pattern_type'] = "stix"
+    indicator_info['spec_version'] = "2.1"
+    indicator = Indicator(**indicator_info)
+
+    # malware_pcap_1_info = {}
+    # malware_pcap_1_info["name"] = "dump-3812"
+    # malware_pcap_1_info["created"] = "2022-01-27T18:17:31.484328Z"
+    # malware_pcap_1_info["is_family"] = False
+    # malware_pcap_1_info["spec_version"] = "2.1" 
+    # malware_pcap_1_info["modified"] = "2022-01-27T18:17:31.484328Z" 
+    # malware_pcap_1_info["id"] = "malware--14a68929-b82b-4720-afee-6f0ed75c493f"
+    # malware_pcap_1_info = Malware(**malware_pcap_1_info)
+
+    # relationship_info = {}
+
+    # relationship_1 = Relationship(relationship_type='indicates',
+    #                             source_ref=indicator.id,
+    #                             target_ref=malware_pcap_1_info.id)
+    # malware1 = Malware(name='Generic malware -lushu1',
+    #                 is_family=False
+    # )
+    obd_pcap = parse(""" {
+        "type": "observed-data",
         "spec_version": "2.1",
-        "created": "2021-01-26T23:33:39.829Z",
-        "modified": "2021-01-26T23:33:39.829Z",
-        "name": "File hash for malware variant",
-        "indicator_types": [
-            "malicious-activity"
-        ],
-        "pattern_type": "stix",
-        "pattern_version": "2.1",
-        "pattern": "[file:hashes.md5 ='d41d8cd98f00b204e9800998ecf8427e']",
-        "valid_from": "2017-09-26T23:33:39.829952Z"
-    }""")
-
-    print('[Debug]: print indicator')
-    print(indicator.serialize(pretty=True))
-
-    malware = Malware(name='Generic malware -lushu',
-                    is_family=False
-    )
-    relationship = Relationship(relationship_type='indicates',
+        "id": "observed-data--b67d30ff-02ac-498a-92f9-32f845f448cf",
+        "created_by_ref": "identity--f431f809-377b-45e0-aa1c-6a4751cae5ff",
+        "created": "2016-04-06T19:58:16.000Z",
+        "modified": "2016-04-06T19:58:16.000Z",
+        "first_observed": "2015-12-21T19:00:00Z",
+        "last_observed": "2015-12-21T19:00:00Z",
+        "number_observed": 1,
+        "object_refs": [
+            "file--1190f2c9-166f-55f1-9706-eea3971d8082"
+        ]
+    } """)
+    pcap_sco = {
+        "type": "file", 
+        "name": "pcap-3818",
+        "id": "file--1190f2c9-166f-55f1-9706-eea3971d8082", 
+        "spec_version": "2.1", 
+        "hashes": { 
+            "MD5": "d183cc8fe6027f3895dc15029af8f3bd", 
+        }
+    }
+    relationship_2 = Relationship(relationship_type='based-on',
                                 source_ref=indicator.id,
-                                target_ref=malware.id)
-    bundle = Bundle(indicator, malware, relationship)
+                                target_ref=obd_pcap.id)
+    
+    obd_dump = parse(""" {
+        "type": "observed-data",
+        "spec_version": "2.1",
+        "id": "observed-data--62c4760f-7918-41ee-9669-1afc679d5ca7",
+        "created_by_ref": "identity--f431f809-377b-45e0-aa1c-6a4751cae5ff",
+        "created": "2016-04-06T19:58:16.000Z",
+        "modified": "2016-04-06T19:58:16.000Z",
+        "first_observed": "2015-12-21T19:00:00Z",
+        "last_observed": "2015-12-21T19:00:00Z",
+        "number_observed": 3,
+        "object_refs": [
+            "file--5f8d4342-1149-46e8-8813-3f857f19adc3"
+        ]
+    } """)
+    dump_sco = {
+        "type": "file", 
+        "name": "dump-3812",
+        "id": "file--5f8d4342-1149-46e8-8813-3f857f19adc3", 
+        "spec_version": "2.1", 
+        "hashes": { 
+            "MD5": "69630e4574ec6798239b091cda43dca0", 
+        }
+    }
+    relationship_1 = Relationship(relationship_type='based-on',
+                                source_ref=indicator.id,
+                                target_ref=obd_dump.id)
+    
+    # malware_pcap_1_info = {}
+    # malware_pcap_1_info["name"] = "dump-3812"
+    # malware_pcap_1_info["created"] = "2022-01-27T18:17:31.484328Z"
+    # malware_pcap_1_info["is_family"] = False
+    # malware_pcap_1_info["spec_version"] = "2.1" 
+    # malware_pcap_1_info["modified"] = "2022-01-27T18:17:31.484328Z" 
+    # malware_pcap_1_info["id"] = "malware--14a68929-b82b-4720-afee-6f0ed75c493f"
+    # malware_pcap_1_info = Malware(**malware_pcap_1_info)
+
+    # relationship_info = {}
+
+    # relationship_1 = Relationship(relationship_type='indicates',
+    #                             source_ref=indicator.id,
+    #                             target_ref=malware_pcap_1_info.id)
+    bundle = Bundle(indicator, obd_dump, relationship_1, dump_sco, obd_pcap, relationship_2, pcap_sco)
     collection.add_bundle(bundle.serialize())
     collection.show()
 
@@ -225,7 +314,7 @@ if __name__ == "__main__":
     print('|===============================================================================|')
     print('|===========================> Testing `Add bundle` <============================|')
     print('|===============================================================================|')
-    _test_add_bundle_1(SERVER, PORT, USER, PASSWORD, '365fed99-08fa-fdcd-a1b3-fb247eb41d01')
-    #_test_add_bundle_2(SERVER, PORT, USER, PASSWORD, '365fed99-08fa-fdcd-a1b3-fb247eb41d01')
+    # test_add_bundle_1(SERVER, PORT, USER, PASSWORD, '365fed99-08fa-fdcd-a1b3-fb247eb41d01')
+    _test_add_bundle_2(SERVER, PORT, USER, PASSWORD, '365fed99-08fa-fdcd-a1b3-fb247eb41d01')
 
 

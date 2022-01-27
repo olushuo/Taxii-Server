@@ -1,0 +1,36 @@
+{
+    "objects": [
+        {
+            "created": "2021-11-30T22:09:36Z",
+            "id": "indicator--8b680539-bc5d-4dc8-b91d-64e8295b8740",
+            "indicator_types": [
+                "malicious-activity"
+            ],
+            "modified": "2021-11-30T22:14:17Z",
+            "name": "Incident 2376151082326160871",
+            "pattern": "[file:hashes.MD5 = '69630e4574ec6798239b091cda43dca0'] AND [file:hashes.MD5 = 'd183cc8fe6027f3895dc15029af8f3bd']",
+            "pattern_type": "stix",
+            "spec_version": "2.1",
+            "type": "indicator"
+        },
+        {
+            "name": "dump-3812", 
+            "created": "2022-01-27T18:17:31.484328Z", 
+            "is_family": false, 
+            "spec_version": "2.1", 
+            "modified": "2022-01-27T18:17:31.484328Z", 
+            "type": "malware", 
+            "id": "malware--5e885d44-a3c7-43c3-9168-db376814f6ca"
+        }, 
+        {
+            "created": "2022-01-27T20:00:03.652906Z", 
+            "spec_version": "2.1", 
+            "modified": "2022-01-27T20:00:03.652906Z", 
+            "target_ref": "malware--14a68929-b82b-4720-afee-6f0ed75c493f", 
+            "relationship_type": "indicates", 
+            "type": "relationship", 
+            "id": "relationship--545621a9-445e-4072-95c8-a53fa4199928", 
+            "source_ref": "indicator--8b680539-bc5d-4dc8-b91d-64e8295b8740"
+        }
+    ]
+}
