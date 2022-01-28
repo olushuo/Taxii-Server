@@ -73,6 +73,16 @@ conda activate taxii-test
 pip install --upgrade pip
 pip install taxii2-client
 pip install stix2
+pip install pytest
 ```
 ***A sample test file --->***
 *[test.py](https://github.com/olushuo/Taxxii-Server/blob/main/test.py)*
+
+To test all test cases:
+```
+pytest -vs test.py
+```
+To test a particular case:
+```
+pytest -vs test.py::test_report_incident
+```
