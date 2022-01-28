@@ -86,18 +86,9 @@ def test_report_incident():
     # select id, type, aipmask, aport, vipmask, vport, protocol, sts, ets from incident where ...
     incident = [2376151082326160871, 4, '10.95.7.111', 43262, '10.95.7.222', 445, 183, 1638310176, 1638310457]
     _report_incident(incident, config)
+
+    # print out the results
     taxii2 = Taxxi2Server(config['Server'], config['Port'], config['User'], config['Password'])
     api_root = taxii2.get_api_root()
     collection = api_root.get_collection(config['CollectionID'])
     collection.show()
-
-
-# if __name__ == "__main__":
-
-#     print('|===============================================================================|')
-#     print('|===========================> Testing `Add bundle` <============================|')
-#     print('|===============================================================================|')
-#     # test_add_bundle_1(SERVER, PORT, USER, PASSWORD, '365fed99-08fa-fdcd-a1b3-fb247eb41d01')
-#     _test_add_bundle_2(SERVER, PORT, USER, PASSWORD, '365fed99-08fa-fdcd-a1b3-fb247eb41d01')
-
-

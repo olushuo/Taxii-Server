@@ -128,38 +128,6 @@ class Taxxi2Server:
         return ApiRoot(**api_root_info)
 
 
-def _test_add_bundle_1(SERVER, PORT, USER, PASSWORD, collection_id, api_root_url=None):
-    taxii2 = Taxxi2Server(SERVER, PORT, USER, PASSWORD)
-    api_root = taxii2.get_api_root(api_root_url)
-    collection = api_root.get_collection(collection_id)
-    indicator = parse("""{
-        "type": "indicator",
-        "spec_version": "2.1",
-        "created": "2017-09-26T23:33:39.829Z",
-        "modified": "2017-09-26T23:33:39.829Z",
-        "name": "File hash for malware variant",
-        "indicator_types": [
-            "malicious-activity"
-        ],
-        "pattern_type": "stix",
-        "pattern_version": "2.1",
-        "pattern": "[file:hashes.md5 ='d41d8cd98f00b204e9800998ecf8427e']",
-        "valid_from": "2017-09-26T23:33:39.829952Z"
-    }""")
-
-    print('[Debug]: print indicator')
-    print(indicator.serialize(pretty=True))
-
-    malware = Malware(name='Generic malware -lushu',
-                    is_family=False
-    )
-    relationship = Relationship(relationship_type='indicates',
-                                source_ref=indicator.id,
-                                target_ref=malware.id)
-    bundle = Bundle(indicator, malware, relationship)
-    collection.add_bundle(bundle.serialize())
-    collection.show()
-
 def _test_add_bundle_2(SERVER, PORT, USER, PASSWORD, collection_id, api_root_url=None):
     taxii2 = Taxxi2Server(SERVER, PORT, USER, PASSWORD)
     api_root = taxii2.get_api_root(api_root_url)
@@ -282,12 +250,4 @@ def _test_add_bundle_2(SERVER, PORT, USER, PASSWORD, collection_id, api_root_url
     bundle = Bundle(bundle)
     collection.add_bundle(bundle.serialize())
     collection.show()
-
-if __name__ == "__main__":
-    print('|===============================================================================|')
-    print('|===========================> Testing `Add bundle` <============================|')
-    print('|===============================================================================|')
-    # test_add_bundle_1(SERVER, PORT, USER, PASSWORD, '365fed99-08fa-fdcd-a1b3-fb247eb41d01')
-    _test_add_bundle_2(SERVER, PORT, USER, PASSWORD, '365fed99-08fa-fdcd-a1b3-fb247eb41d01')
-
 

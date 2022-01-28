@@ -155,25 +155,3 @@ def _report_incident(incident, config):
     # 4. Create Bundle
     envelope = Bundle(envelope)
     collection.add_bundle(envelope.serialize())
-
-def _report_incidents(sts, ets, config_file):
-    if sts >= ets and ets != 0:
-        _debug("Incorrect timestamp")
-
-    with open(config_file, mode=r) as f:
-        config = json.load(f)
-
-    if not config.get('Server', None) or \
-        not config.get('Port', None) or \
-        not config.get('User', None) or \
-        not config.get('Password', None) or \
-        not config.get('ApiRootURL', None) or \
-        not config.get('CollectionID', None):
-        _debug("Incorect stix configuration")
-        logger.error("Incorect stix configuration")
-        return
-
-    db = FabricDb(logger)
-    incidents = db.get_incidents_list_by_timestamps(sts, ets)
-    for incident in incidents:
-        _report_incident(incident, config)
