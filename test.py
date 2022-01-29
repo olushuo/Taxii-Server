@@ -26,6 +26,8 @@ def setup_module():
         return
 
     config['Identity']['ID'] = "identity--{}".format(config['Identity']['ID'])
+    js = json.dumps(config, indent=4)
+    print(js)
 
 def test_server():
     taxii2 = Taxxi2Server(config['Server'], config['Port'], config['User'], config['Password'])
@@ -77,6 +79,7 @@ def test_collection_3():
 
 def test_collection_4():
     taxii2 = Taxxi2Server(config['Server'], config['Port'], config['User'], config['Password'])
+    taxii2.show()
     api_root = taxii2.get_api_root()
     collection_id = '365fed99-08fa-fdcd-a1b3-fb247eb41d01'
     collection = api_root.get_collection(collection_id)
