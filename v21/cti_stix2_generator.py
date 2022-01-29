@@ -199,6 +199,18 @@ def _generate_sco_file(file_info):
     return sco_file
 
 
+def _generate_sdo_malware(dump):
+    malware_info = {}
+    malware_info['spec_version'] = "2.1"
+    malware_info['id'] = "malware--{}".format(uuid.uuid4())
+    malware_info['name'] = 'virus-file-{}'.format(dump[0])
+    malware_info['is_family'] = False
+    malware_info['description'] = 'virus file(id: {}; md5: {})'.format(dump[0], dump[2])
+    malware_info['malware_types'] = [ 'virus' ]
+    malware = Malware(**malware_info)
+    return malware
+
+
 def _create_observed_file_data_report(indicator, incident, dumps):
     bundle = []
 
@@ -209,6 +221,11 @@ def _create_observed_file_data_report(indicator, incident, dumps):
         bundle.append(observed_data)
         based_on = _gen_sro(incident[7], incident[8], 'based-on', indicator, observed_data)
         bundle.append(based_on)
+        if len(dump) > 3 and dump[3]: # virus
+            malware = _generate_sdo_malware(dump)
+            indicates = _gen_sro(incident[7], incident[8], 'indicates', indicator, malware)
+            bundle.append(malware)
+            bundle.append(indicates)
 
     return bundle
 
