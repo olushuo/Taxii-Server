@@ -224,6 +224,7 @@ def _generate_sco_url(url):
     sco_info['value'] = url
     return URL(**sco_info)
 
+
 def _generate_sco_file(file_info):
     sco_file = []
     sco_info = {}
