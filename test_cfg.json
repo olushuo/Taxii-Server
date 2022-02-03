@@ -1,18 +1,28 @@
 {
-    "Server": "192.168.56.105",
-    "Port": 8080,
-    "User": "fdc",
-    "Password": "fortinet",
-    "ApiRootURL": "",
-    "CollectionID": "365fed99-08fa-fdcd-a1b3-fb247eb41d01",
-    "Identity": {
-        "ID": "e713ac81-46de-4d7a-a7a9-965ce13e6ab5",
-        "Name": "FortiDeceptor Team",
-        "Sectors": [
+    "version": "4.2",
+    "modify_ts":"1643815044",
+    "enable": true,
+
+    "api_root_url": "http://192.168.56.105:8080/trustgroup1/",
+    
+    "user": "fdc",
+    "password": "fortinet",
+    "collection_id": "365fed99-08fa-fdcd-a1b3-fb247eb41d01",
+    "cert": "base64(zip(cert-content))",
+    "key": "base64(zip(key-content))",
+
+    "file_md5": true,
+    "wcf": true,
+    "ips": true,
+
+    "identity": {
+        "id": "e713ac81-46de-4d7a-a7a9-965ce13e6ab5",
+        "name": "FortiDeceptor <FDC-VMTM21000017>",
+        "sectors": [
             "technology"
         ],
-        "ContactInfo": "info@fdc.net",
-        "Class": "organization",
-        "CreatedTime": "2020-04-06T20:03:00Z"
+        "contact_info": "info@fdc.net",
+        "class": "organization",
+        "created_time": "2020-04-06T20:03:00Z"
     }
 }

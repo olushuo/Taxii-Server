@@ -1,10 +1,11 @@
 
 import os, json
-import uuid
+import uuid, urlparse
+from django import conf
 import datetime, pytz
 from stix2 import parse
 from stix2 import Identity, Indicator, Bundle, Malware, Relationship, NetworkTraffic, \
-    IPv4Address, ObservedData, File, IntrusionSet, AttackPattern
+    IPv4Address, ObservedData, File, IntrusionSet, AttackPattern, Directory, URL
 from cti_taxii2_client import Taxxi2Server, ApiRoot, Collection
 from setting import STIX_CFG
 
@@ -23,23 +24,23 @@ def _msg(msg):
 
 
 def _debug(msg):
-    if os.path.exists("/tmp/cti_debug"):
-        print("[CTI STIX2 Debug]: {}".format(msg))
+    #if os.path.exists("/tmp/cti_debug"):
+    print("[CTI STIX2 Debug]: {}".format(msg))
 
 
 def _create_identity(identity_dict):
     identity_info = {}
     identity_info["spec_version"] = "2.1" 
-    identity_info["created"] = identity_dict.get('CreatedTime', None)
-    identity_info["name"] = identity_dict['Name']
-    identity_info["identity_class"] = identity_dict.get('Class', 'unknown')
-    identity_info["sectors"] = identity_dict.get('Sectors', ['technology'])
-    identity_info["contact_information"] = identity_dict.get('ContactInfo', '')
+    identity_info["created"] = identity_dict.get('created_time', None)
+    identity_info["name"] = identity_dict['name']
+    identity_info["identity_class"] = identity_dict.get('class', 'unknown')
+    identity_info["sectors"] = identity_dict.get('sectors', ['technology'])
+    identity_info["contact_information"] = identity_dict.get('contact_info', '')
     identity = Identity(**identity_info)
     return identity
 
 
-def _generate_sdo_indicator(incident, dumps, identity_id):
+def _generate_sdo_indicator(incident, dumps, wcfs, identity_id):
     pattern = """[ \
 network-traffic:src_ref.type = 'ipv4-addr' AND network-traffic:dst_ref.value = '{}' \
 ] AND [ \
@@ -47,8 +48,11 @@ network-traffic:dst_ref.type = 'ipv4-addr' AND network-traffic:dst_ref.value = '
 ] \
 """.format(incident[2], incident[4])
 
-    for dump in dumps:
-        pattern = pattern + "AND [ file:hashes.MD5 = '{}'] ".format(dump[2])
+    for _, dump in dumps.items():
+        pattern = pattern + "AND [ file:hashes.MD5 = '{}' ] ".format(dump[0][2])
+    for wcf in wcfs:
+        pattern = pattern + "AND [ url:value = '{}' ] ".format(wcf)
+
     indicator_info = {}
     indicator_info['id'] = "indicator--{}".format(uuid.uuid4())
     indicator_info['name'] = "Incident-{}".format(incident[0])
@@ -128,8 +132,8 @@ def _gen_sro(created, modified, type__, from__, to__):
     return sro
 
 
-def _create_incident_report(incident, dumps, identity_id):
-    indicator = _generate_sdo_indicator(incident, dumps, identity_id)
+def _create_incident_report(incident, dumps, wcfs, identity_id):
+    indicator = _generate_sdo_indicator(incident, dumps, wcfs, identity_id)
     src_ipv4 = _generate_sco_ipv4(incident[2])
     dst_ipv4 = _generate_sco_ipv4(incident[4])
     network_traffic = _gen_sdo_network_traffic(incident, src_ipv4, dst_ipv4)
@@ -140,18 +144,18 @@ def _create_incident_report(incident, dumps, identity_id):
 
 
 def _get_events_by_incident(incident):
-    # select id, iid, optype, dumpid from event where iid=2376151082326160871; 
+    # select id, iid, optype, dumpid, opcmd from event where iid=2376151082326160871; 
     events = [
-        ( 2376155568574069011, 2376151082326160871, 103, 0 ),
-        ( 2376150895873548295, 2376151082326160871, 1400, 0 ),
-        ( 2376150886981899098, 2376151082326160871, 1209, 0 ),
-        ( 2376150880888503948, 2376151082326160871, 1204, 3832 ),
-        ( 2376150879342463654, 2376151082326160871, 1200, 0 ),
-        ( 2376150877044202354, 2376151082326160871, 1200, 0 ),
-        ( 2376150885350945327, 2376151082326160871, 1205, 3812 ),
-        ( 2376150882778026235, 2376151082326160871, 1203, 3812 ),
-        ( 2376150875143749543, 2376151082326160871, 1202, 0 ),
-        ( 2376150736746690961, 2376151082326160871, 102, 3818 )
+        ( 2376155568574069011, 2376151082326160871, 103, 0, 0 ),
+        ( 2376150895873548295, 2376151082326160871, 1400, 0, 0 ),
+        ( 2376150886981899098, 2376151082326160871, 1402, 0, 200 ),
+        ( 2376150880888503948, 2376151082326160871, 1204, 3832, 1091),
+        ( 2376150879342463654, 2376151082326160871, 1200, 0, 0 ),
+        ( 2376150877044202354, 2376151082326160871, 1200, 0, 0 ),
+        ( 2376150885350945327, 2376151082326160871, 1205, 3812, 1092),
+        ( 2376150882778026235, 2376151082326160871, 1203, 3812, 1092),
+        ( 2376150875143749543, 2376151082326160871, 1202, 0, 0 ),
+        ( 2376150736746690961, 2376151082326160871, 102, 3818, 0)
     ]
     return events
 
@@ -167,62 +171,125 @@ def _is_ips_event(event):
     return False
 
 
-def _get_dump_files(events):
-    dump_id_set = set()
+def _get_wcf_events(events):
+    wcfs = []
     for event in events:
-        if event[3]:
-            dump_id_set.add(event[3])
+        if 1402 != event[2]:
+            continue
+        # select vstring from cmds where id=event[4]
+        url = 'http://www.cabelas.com'
+        wcfs.append(url)
+    
+    wcfs.append('https://www.brasspro.com')
+    return wcfs
+
+
+def _get_dump_files(events):
+    dumps = {}
+
+    for event in events:
+        if not dumps.has_key(event[3]):
+            # select id, type, md5, isvirus from dump where id=event[3]
+            file = (3818, 1, 'd183cc8fe6027f3895dc15029af8f3bd')
+            # select vstring from cmds where id=event[4]
+            vstring = ''
+            if event[4]:
+                vstring = '/home/share/lure/eicar6'
+            dumps[event[3]] = (file, vstring)
 
     # select id, type, md5, isvirus from dump where id in (3812, 3818, 3832);
     # if no files, return []
-    return [
-        (3818, 1, 'd183cc8fe6027f3895dc15029af8f3bd'),
-        (3812, 0, 'd183cc8fe6027f3895dc15029af8f3bd', 1),
-        (3832, 0, '51da30155efd227110c3b7c92cd676d6', 0)
-    ]
+    return {
+        '3818': ((3818, 1, 'd183cc8fe6027f3895dc15029af8f3bd'), '/home/share/lure/eicar18'),
+        '3812': ((3812, 0, 'd183cc8fe6027f3895dc15029af8f3bd', 1), '/home/share/lure/eicar12'),
+        '3832': ((3832, 0, '51da30155efd227110c3b7c92cd676d6', 0), '')
+    }
 
+
+
+def _generate_sco_directory(path):
+    sco_id = "directory--{}".format(uuid.uuid4())
+    sco_info = {}
+    sco_info['spec_version'] = "2.1"
+    sco_info['id'] = sco_id
+    sco_info['path'] = path
+    return Directory(**sco_info)
+
+
+def _generate_sco_url(url):
+    sco_file = []
+    sco_info = {}
+    sco_info['spec_version'] = "2.1"
+    sco_info['id'] = "url--{}".format(uuid.uuid4())
+    sco_info['value'] = url
+    return URL(**sco_info)
 
 def _generate_sco_file(file_info):
+    sco_file = []
     sco_info = {}
     sco_info['spec_version'] = "2.1"
     sco_info['id'] = "file--{}".format(uuid.uuid4())
-    if file_info[1] == 0:
-        sco_info['name'] = "dumped-file-{}".format(file_info[0])
-    elif file_info[1] == 1:
-        sco_info['name'] = "pcap-file-{}".format(file_info[0])
+    if file_info[0][1] == 0:
+        sco_info['name'] = "dumped-file-{}".format(file_info[0][0])
+    elif file_info[0][1] == 1:
+        sco_info['name'] = "pcap-file-{}".format(file_info[0][0])
     else:
-        sco_info['name'] = "unknown-file-{}".format(file_info[0])
+        sco_info['name'] = "unknown-file-{}".format(file_info[0][0])
     sco_info['hashes'] = {
-        "MD5": file_info[2] 
+        "MD5": file_info[0][2] 
     }
-    sco_file = File(**sco_info)
+    if len(file_info[1]):
+        sco_info['name'] = os.path.basename(file_info[1])
+        sco_dir = _generate_sco_directory(os.path.dirname(file_info[1]))
+        sco_info['parent_directory_ref'] = sco_dir.get('id')
+        sco_file.append(sco_dir)
+    sco_file.append(File(**sco_info))
     return sco_file
 
 
-def _generate_sdo_malware(dump):
+def _generate_sdo_malware(name, description, types):
     malware_info = {}
     malware_info['spec_version'] = "2.1"
     malware_info['id'] = "malware--{}".format(uuid.uuid4())
-    malware_info['name'] = 'virus-file-{}'.format(dump[0])
+    malware_info['name'] = name
     malware_info['is_family'] = False
-    malware_info['description'] = 'virus file(id: {}; md5: {})'.format(dump[0], dump[2])
-    malware_info['malware_types'] = [ 'virus' ]
+    malware_info['description'] = description
+    malware_info['malware_types'] = types
     malware = Malware(**malware_info)
     return malware
 
 
-def _create_observed_file_data_report(indicator, incident, dumps):
+def _create_observed_url_report(indicator, incident, wcfs):
     bundle = []
-
-    for dump in dumps:
-        sco_file = _generate_sco_file(dump)
+    for wcf in wcfs:
+        sco_file = _generate_sco_url(wcf)
         bundle.append(sco_file)
         observed_data = _gen_sdo_opserved_data(incident, sco_file)
         bundle.append(observed_data)
         based_on = _gen_sro(incident[7], incident[8], 'based-on', indicator, observed_data)
         bundle.append(based_on)
-        if len(dump) > 3 and dump[3]: # virus
-            malware = _generate_sdo_malware(dump)
+        malware = _generate_sdo_malware('{}'.format(wcf), 
+            'malicious url: {}'.format(wcf), [ 'backdoor', 'remote-access-trojan' ])
+        indicates = _gen_sro(incident[7], incident[8], 'indicates', indicator, malware)
+        bundle.append(malware)
+        bundle.append(indicates)
+
+    return bundle
+
+
+def _create_observed_file_data_report(indicator, incident, dumps):
+    bundle = []
+    for _, dump in dumps.items():
+        sco_file = _generate_sco_file(dump)
+        bundle.extend(sco_file)
+        observed_data = _gen_sdo_opserved_data(incident, sco_file[0])
+        bundle.append(observed_data)
+        based_on = _gen_sro(incident[7], incident[8], 'based-on', indicator, observed_data)
+        bundle.append(based_on)
+        if len(dump[0]) > 3 and dump[0][3]: # virus
+            malware = _generate_sdo_malware(dump[0][0], 
+                'virus file(id: {}; md5: {}, path: {})'.format(dump[0][0], dump[0][2], dump[1]),
+                [ 'virus' ])
             indicates = _gen_sro(incident[7], incident[8], 'indicates', indicator, malware)
             bundle.append(malware)
             bundle.append(indicates)
@@ -268,39 +335,85 @@ def _create_ips_attack_report(incident, event, intrusion_set, indicator):
     return [attack_pattern, sro]
 
 
-def _report_incident(incident, config):
+def get_config(config_file):
+    config = {}
+    if not os.path.exists(config_file):
+        return None
+
+    with open(config_file, mode='r') as f:
+        config = json.load(f)
+
+    if not config.get('api_root_url', None) or \
+        not config.get('user', None) or \
+        not config.get('password', None) or \
+        not config.get('collection_id', None) or \
+        not config.get('identity', None) or \
+        not config.get('identity', None).get('id', None) or \
+        not config.get('identity', None).get('name', None):
+        _debug("Incorect stix configuration")
+        logger.error("Incorect stix configuration")
+        return None
+
+    config['identity']['id'] = "identity--{}".format(config['identity']['id'])
+    url = urlparse.urlparse(config['api_root_url'])
+    config['server'] = url.hostname
+    config['port'] = url.port
+    config['protocol'] = url.scheme
+    _debug('Parsed configuration: {}'.format(config))
+    return config
+
+
+def _report_incident(incident, output, config):
     envelope = []
-    taxii2 = Taxxi2Server(config['Server'], config['Port'], config['User'], config['Password'])
-    api_root = taxii2.get_api_root(config.get('ApiRootURL', None))
-    collection = api_root.get_collection(config['CollectionID'])
+    _debug('_report_incident(), using configuration: {}'.format(config))
+    if config.get('enable', False) and config.get('api_root_url', None):
+        taxii2 = Taxxi2Server(config['protocol'], config['server'], config['port'], config['user'], config['password'])
+        api_root = taxii2.get_api_root(config.get('api_root_url', None))
+        collection = api_root.get_collection(config['collection_id'])
     
     events = _get_events_by_incident(incident)
-    dumps = _get_dump_files(events)
+    dumps = {}
+    if config.get('file_md5', False):
+        dumps = _get_dump_files(events)
+    wcfs = []
+    if config.get('wcf', False):
+        wcfs = _get_wcf_events(events)
 
     # 1. Create Identity
-    identity = _create_identity(config['Identity'])
-    envelope.append(identity)
+    if config.get('identity', None):
+        identity = _create_identity(config['identity'])
+        envelope.append(identity)
 
     # 2. Create Indicator
-    indicator = _create_incident_report(incident, dumps, identity.id)
+    indicator = _create_incident_report(incident, dumps, wcfs, identity.id)
     envelope.extend(indicator)
 
     # 3. Create Observed-Objects with SCOs
     if len(dumps):
         observed_data = _create_observed_file_data_report(indicator[0], incident, dumps)
         envelope.extend(observed_data)
+    if len(wcfs):
+        observed_data = _create_observed_url_report(indicator[0], incident, wcfs)
+        envelope.extend(observed_data)
 
-    intrusion_set = []
-    for event in events:
-        if _is_ips_event(event):
-            intrusion_set = _create_intrusion_set(incident, indicator[0])
-            envelope.extend(intrusion_set)
-            break
-    for event in events:
-        if _is_ips_event(event) and intrusion_set and intrusion_set[0]:
-            observed_data = _create_ips_attack_report(incident, event, intrusion_set[0], indicator[0])
-            envelope.extend(observed_data)
+    if config.get('ips', False):
+        intrusion_set = []
+        for event in events:
+            if _is_ips_event(event):
+                intrusion_set = _create_intrusion_set(incident, indicator[0])
+                envelope.extend(intrusion_set)
+                break
+        for event in events:
+            if _is_ips_event(event) and intrusion_set and intrusion_set[0]:
+                observed_data = _create_ips_attack_report(incident, event, intrusion_set[0], indicator[0])
+                envelope.extend(observed_data)
 
     # 4. Create Bundle
     envelope = Bundle(envelope)
-    collection.add_bundle(envelope.serialize())
+    _debug('Exports stix2 envelope:\n{}'.format(envelope.serialize(pretty=True)))
+    if output:
+        with open(output, 'a') as f:
+            f.write(envelope.serialize(pretty=True))
+    
+    if config.get('enable', False):
+        collection.add_bundle(envelope.serialize())
