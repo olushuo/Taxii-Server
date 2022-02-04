@@ -336,6 +336,20 @@ def _create_ips_attack_report(incident, event, intrusion_set, indicator):
     return [attack_pattern, sro]
 
 
+def _has_authentication_method(config):
+    if config.get('user', None) and config.get('password', None):
+        config['cert'] = None
+        config['key'] = None
+        return True
+    if config.get('cert', None) and config.get('key', None):
+        if os.path.exists(config.get('cert', None)) and os.path.exists(config.get('key', None)):
+            config['user'] = None
+            config['password'] = None
+            return True
+
+    return False
+
+
 def get_config(config_file):
     config = {}
     if not os.path.exists(config_file):
@@ -345,14 +359,17 @@ def get_config(config_file):
         config = json.load(f)
 
     if not config.get('api_root_url', None) or \
-        not config.get('user', None) or \
-        not config.get('password', None) or \
         not config.get('collection_id', None) or \
         not config.get('identity', None) or \
         not config.get('identity', None).get('id', None) or \
         not config.get('identity', None).get('name', None):
         _debug("Incorect stix configuration")
         logger.error("Incorect stix configuration")
+        return None
+
+    if not _has_authentication_method(config):
+        _debug("Incorect stix configuration(no valid authentication method)")
+        logger.error("Incorect stix configuration(no valid authentication method)")
         return None
 
     config['identity']['id'] = "identity--{}".format(config['identity']['id'])
