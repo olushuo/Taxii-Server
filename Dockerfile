@@ -12,9 +12,11 @@ RUN python -m pip install --upgrade pip
 RUN pip install setuptools 
 
 VOLUME [ "/data" ] 
-VOLUME [ "/conf" ] 
+VOLUME [ "/conf" ]
+VOLUME [ "/certs" ] 
 COPY ./conf/medallion.conf /conf/medallion.conf
 COPY ./data/default_data.json /data/default_data.json
+ADD ./certs /certs
 
 RUN mkdir -p /opt/taxii
 RUN git clone https://github.com/oasis-open/cti-taxii-server.git /opt/taxii/src
