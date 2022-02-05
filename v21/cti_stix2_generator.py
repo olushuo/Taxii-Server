@@ -337,6 +337,8 @@ def _create_ips_attack_report(incident, event, intrusion_set, indicator):
 
 def _has_authentication_method(config):
     if config.get('user', None) and config.get('password', None):
+        config['cert'] = None
+        config['key'] = None
         return True
     if config.get('cert', None) and config.get('key', None):
         if os.path.exists(config.get('cert', None)) and os.path.exists(config.get('key', None)):

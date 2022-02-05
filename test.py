@@ -27,7 +27,8 @@ def setup_module():
 
 def test_server():
     taxii2 = Taxxi2Server(config['protocol'], config['server'], config['port'], config['user'], config['password'],
-        config['cert'], config['key'])
+        # config['cert'], config['key'])
+        None,None)
     taxii2.show()
 
 def test_api1_root():

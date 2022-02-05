@@ -108,7 +108,7 @@ class Taxxi2Server:
         print(protocol, server, port)
         self._taxii2_server = Server('{}://{}:{}/taxii2/'.format(protocol, server, port), 
             user=user, password=password,
-            cert=(cert, key)
+            cert=(cert, key) if cert else None
         )
 
     def show(self):
