@@ -37,7 +37,7 @@ def test_api1_root():
     api_root.show()
 
 def test_api2_root():
-    taxii2 = Taxxi2Server(config['protocol'], config['server'], config['port'], config['user'], config['password']
+    taxii2 = Taxxi2Server(config['protocol'], config['server'], config['port'], config['user'], config['password'],
         config.get('verify', False), config['cert'], config['key'])
     api_root = taxii2.get_api_root('http://192.168.56.105:8080/api2/')
     api_root.show()
