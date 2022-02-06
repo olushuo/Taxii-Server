@@ -1,7 +1,6 @@
 
 import os, json
 import uuid, urlparse
-from django import conf
 import datetime, pytz
 from stix2 import parse
 from stix2 import Identity, Indicator, Bundle, Malware, Relationship, NetworkTraffic, \
@@ -337,14 +336,14 @@ def _create_ips_attack_report(incident, event, intrusion_set, indicator):
 
 
 def _has_authentication_method(config):
-    if config.get('user', None) and config.get('password', None):
+    if config['protocol'] == 'http' and config.get('user', None) and config.get('password', None):
         config['cert'] = None
         config['key'] = None
         return True
-    if config.get('cert', None) and config.get('key', None):
+
+    if config['protocol'] == 'https' and config.get('cert', None) and config.get('key', None) \
+        and config.get('user', None) and config.get('password', None):
         if os.path.exists(config.get('cert', None)) and os.path.exists(config.get('key', None)):
-            config['user'] = None
-            config['password'] = None
             return True
 
     return False
@@ -367,16 +366,17 @@ def get_config(config_file):
         logger.error("Incorect stix configuration")
         return None
 
-    if not _has_authentication_method(config):
-        _debug("Incorect stix configuration(no valid authentication method)")
-        logger.error("Incorect stix configuration(no valid authentication method)")
-        return None
-
     config['identity']['id'] = "identity--{}".format(config['identity']['id'])
     url = urlparse.urlparse(config['api_root_url'])
     config['server'] = url.hostname
     config['port'] = url.port
     config['protocol'] = url.scheme
+    
+    if not _has_authentication_method(config):
+        _debug("Incorect stix configuration(no valid authentication method)")
+        logger.error("Incorect stix configuration(no valid authentication method)")
+        return None
+
     _debug('Parsed configuration: {}'.format(config))
     return config
 
@@ -385,7 +385,8 @@ def _report_incident(incident, output, config):
     envelope = []
     _debug('_report_incident(), using configuration: {}'.format(config))
     if config.get('enable', False) and config.get('api_root_url', None):
-        taxii2 = Taxxi2Server(config['protocol'], config['server'], config['port'], config['user'], config['password'])
+        taxii2 = Taxxi2Server(config['protocol'], config['server'], config['port'], config['user'], config['password'],
+            config.get('verify', False), config['cert'], config['key'])
         api_root = taxii2.get_api_root(config.get('api_root_url', None))
         collection = api_root.get_collection(config['collection_id'])
     

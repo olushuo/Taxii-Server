@@ -3,13 +3,14 @@
     "modify_ts":"1643815044",
     "enable": true,
 
-    "api_root_url": "http://192.168.56.105:8080/trustgroup1/",
+    "api_root_url": "https://127.0.0.1:444/trustgroup1/",
     
     "user": "fdc",
     "password": "fortinet",
     "collection_id": "365fed99-08fa-fdcd-a1b3-fb247eb41d01",
-    "cert": "",
-    "key": "",
+    "cert": "/home/lushu/Works/MathDeliberation/github.com/Taxii-Server/certs/client_001/client_001.crt",
+    "key": "/home/lushu/Works/MathDeliberation/github.com/Taxii-Server/certs/client_001/client_001.key",
+    "verify": false,
 
     "file_md5": true,
     "wcf": true,

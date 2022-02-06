@@ -2,7 +2,7 @@
 
 import json
 import pytest
-from v21.setting import STIX_CFG
+from v21.setting import STIX_CFG_SSL
 from v21.cti_taxii2_client import Taxxi2Server, ApiRoot, Collection
 from v21.cti_stix2_generator import _report_incident, get_config, _debug
 
@@ -19,7 +19,7 @@ def trace(func):
 
 @trace
 def setup_module():
-    config_file = STIX_CFG
+    config_file = STIX_CFG_SSL
     global config
     config = get_config(config_file)
     js = json.dumps(config, indent=4)
@@ -33,13 +33,20 @@ def test_server():
 def test_api1_root():
     taxii2 = Taxxi2Server(config['protocol'], config['server'], config['port'], config['user'], config['password'],
         config.get('verify', False), config['cert'], config['key'])
-    api_root = taxii2.get_api_root('http://192.168.56.105:8080/api1/')
+    api_root = taxii2.get_api_root('https://127.0.0.1:8080/api1/')
+    api_root.show()
+
+def test_api1_root_ssl():
+    taxii2 = Taxxi2Server(config['protocol'], config['server'], config['port'], config['user'], config['password'],
+        config.get('verify', False), config['cert'], config['key'])
+    api_root = taxii2.get_api_root('https://127.0.0.1:444/api1/')
+    print(api_root)
     api_root.show()
 
 def test_api2_root():
-    taxii2 = Taxxi2Server(config['protocol'], config['server'], config['port'], config['user'], config['password']
+    taxii2 = Taxxi2Server(config['protocol'], config['server'], config['port'], config['user'], config['password'],
         config.get('verify', False), config['cert'], config['key'])
-    api_root = taxii2.get_api_root('http://192.168.56.105:8080/api2/')
+    api_root = taxii2.get_api_root('https://127.0.0.1:8080/api2/')
     api_root.show()
 
 def test_default_api_root():
