@@ -62,7 +62,8 @@ docker container run -d -p 444:444 -p 443:443  -v <your data file folder>:/data 
 ```
 - Please modify the `/discovery` part, configure the proper IP here.
 - Please keep "default_data.json" as the fake data file's name, otherwise please change the configuration file either.
-![image](https://user-images.githubusercontent.com/13208409/150575431-ea753a35-1e5d-458e-a025-599cab214db9.png)
+![image](https://user-images.githubusercontent.com/13208409/152693962-284556fb-011e-4aa1-8860-836bf4857931.png)
+
 
 
 ## Test ##
