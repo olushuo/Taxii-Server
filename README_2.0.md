@@ -23,7 +23,8 @@ Otherwise, you mostly may need to run
 docker container run -d -p 444:444 -p 443:443  -v <your data file folder>:/data olushuo/cti-taxii-server:2.0
 ```
 - Taxii server is listening on port 444.
-- Use port 443 to check if the Nginx is running(please add proper certificate into web browser).
+- Use port 443 to check if the Nginx is running(**please add proper certificate into web browser**).
+- All the testing certificates are located at [`certs folder`](https://github.com/olushuo/Taxii-Server/tree/main/certs)
 - The TAXII service's IP is configured in the [`default_data_ssl.json`](#fake-testing-data).
 - Since the nginx service is listening on both IPv4 and IPv6 address, the docker host need to enable IPv6 module.
 
