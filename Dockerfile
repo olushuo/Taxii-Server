@@ -7,6 +7,11 @@ RUN apt install -y nginx
 COPY ./conf/nginx_medallion.conf /etc/nginx/sites-available/medallion.conf
 RUN ln -s /etc/nginx/sites-available/medallion.conf /etc/nginx/sites-enabled/medallion.conf
 
+COPY ./conf/default_ssl.conf /etc/nginx/sites-available/default_ssl.conf
+RUN ln -s /etc/nginx/sites-available/default_ssl.conf /etc/nginx/sites-enabled/default_ssl.conf
+COPY ./conf/nginx_medallion_ssl.conf /etc/nginx/sites-available/medallion_ssl.conf
+RUN ln -s /etc/nginx/sites-available/medallion_ssl.conf /etc/nginx/sites-enabled/medallion_ssl.conf
+
 # Set up the default configuration files
 RUN python -m pip install --upgrade pip
 RUN pip install setuptools 
@@ -15,7 +20,8 @@ VOLUME [ "/data" ]
 VOLUME [ "/conf" ]
 VOLUME [ "/certs" ] 
 COPY ./conf/medallion.conf /conf/medallion.conf
-COPY ./data/default_data.json /data/default_data.json
+# COPY ./data/default_data.json /data/default_data.json
+COPY ./data/default_data_ssl.json /data/default_data.json
 ADD ./certs /certs
 
 RUN mkdir -p /opt/taxii

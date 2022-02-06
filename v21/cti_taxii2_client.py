@@ -101,13 +101,13 @@ class Taxxi2Server:
     _taxii2_server = None
     _discovery = {}
 
-    def __init__(self, protocol, server, port, user, password, cert, key):
-        return self._discover(protocol, server, port, user, password, cert, key)
+    def __init__(self, protocol, server, port, user, password, verify, cert, key):
+        return self._discover(protocol, server, port, user, password, verify, cert, key)
 
-    def _discover(self, protocol, server, port, user, password, cert, key):
+    def _discover(self, protocol, server, port, user, password, verify, cert, key):
         print(protocol, server, port)
         self._taxii2_server = Server('{}://{}:{}/taxii2/'.format(protocol, server, port), 
-            user=user, password=password,
+            user=user, password=password, verify=verify,
             cert=(cert, key) if cert else None
         )
 
