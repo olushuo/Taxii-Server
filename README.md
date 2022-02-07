@@ -86,3 +86,4 @@ To test a particular case:
 ```
 pytest -vs test.py::test_report_incident
 ```
+To virtualize the envelope, plase paste the envelope into [cti-virtualizer](https://oasis-open.github.io/cti-stix-visualization/)
