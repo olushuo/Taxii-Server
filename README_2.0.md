@@ -89,3 +89,6 @@ To test a particular case:
 pytest -vs test_ssl.py::test_report_incident
 ```
 To virtualize the envelope, plase paste the envelope into [cti-virtualizer](https://oasis-open.github.io/cti-stix-visualization/)
+In the particular case of 'text_report_incident', you are supposed to get somethin like:
+![image](https://user-images.githubusercontent.com/13208409/152712700-b55f232e-c585-4857-945c-044cfb865fb8.png)
+
